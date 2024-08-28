@@ -1,90 +1,215 @@
-using Maze.Utility;
+using TrixieGames.Maze.Utility;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Maze.Utility
+namespace TrixieGames.Maze.Utility
 {
     public class MazeGenerator : MonoBehaviour
     {
-        public int m_randomSeed = 42;
-        public int width = 10;
-        public int height = 10;
+        public int m_randomSeed;
+        public int width;
+        public int height;
         public GameObject mazeCellPrefab;
         public GameObject floorPrefab;
         public GameObject solutionPrefab;
 
-        private Stack<Vector2Int> stack;
-        private Vector2Int startPosition;
+        //private Stack<Vector2Int> stack;
+        //private Vector2Int startPosition;
         private MazeCell[,] maze;
+        int unvisitedMazeCells;
         private float m_deadEndProbability = 0.25f;
+
+        Stack<Vector2Int> currStack = new Stack<Vector2Int>();
+        Vector2Int current;
+        Vector2Int randomStartCell;
 
         void Start()
         {
             Random.InitState(m_randomSeed);
             InitializeMaze();
-            GenerateMaze(startPosition);
+            GenerateMaze();
         }
 
-        void InitializeMaze()
+        private void InitializeMaze()
         {
             maze = new MazeCell[width, height];
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
                 {
-                    GameObject newCell = Instantiate(mazeCellPrefab, new Vector3(i * 4, 0f, j * 4), Quaternion.identity);
+                    GameObject newCell = Instantiate(mazeCellPrefab, this.gameObject.transform.position + new Vector3(i * 4, 0f, j * 4), Quaternion.identity, this.gameObject.transform);
                     maze[i, j] = newCell.GetComponent<MazeCell>();
                 }
             }
 
-            stack = new Stack<Vector2Int>();
+            unvisitedMazeCells = maze.Length;
 
-            startPosition = new Vector2Int(width / 2, height / 2);
-            Instantiate(solutionPrefab, new Vector3(startPosition.x, 0f, startPosition.y), Quaternion.identity);
-            maze[startPosition.x, startPosition.y].wasVisited = true;
+            //startPosition = new Vector2Int(width / 2, height / 2);
+            //Instantiate(solutionPrefab, new Vector3(startPosition.x, 0f, startPosition.y), Quaternion.identity);
         }
 
-        void GenerateMaze(Vector2Int _StartCell)
+        private void GenerateMaze()
         {
-            stack.Push(_StartCell);
+            //initalize Random Cell for first cell to hit
+            Vector2Int randomCellInit = new Vector2Int(Random.Range(0, width - 1), Random.Range(0, height - 1));
+            maze[randomCellInit.x, randomCellInit.y].m_isPlacedInMaze = true;
+            AdjustUnvisitedCellCount(-1);
 
-            while (stack.Count > 0)
+
+            while (unvisitedMazeCells > 0)
             {
-                Vector2Int current = stack.Peek();
+                //pick random start position
+                randomStartCell = GetRandomStartCell();
+                //maze[randomStartCell.x, randomStartCell.y].wasVisited = true;
+                currStack.Push(randomStartCell);
+                AdjustUnvisitedCellCount(-1);
 
-                List<Vector2Int> neighbors = GetUnvisitedNeighbors(current);
+                RunGenerationLoop(randomStartCell);
+            }
+        }
 
-                if (neighbors.Count > 0)
+        private void AdjustUnvisitedCellCount(int _adjustment)
+        {
+            if (_adjustment > 0)
+            {
+                unvisitedMazeCells += _adjustment;
+            }
+            else
+            {
+                unvisitedMazeCells -= _adjustment;
+            }
+        }
+
+
+        private void RunGenerationLoop(Vector2Int _currCell)
+        {
+
+            current = currStack.Peek();
+
+            List<Vector2Int> unvisitedNeighbors = GetUnvisitedNeighbors(current);
+
+            if (unvisitedNeighbors.Count > 0)
+            {
+                Vector2Int randomNeighbor = unvisitedNeighbors[Random.Range(0, unvisitedNeighbors.Count)];
+                Debug.Log("Random Neighbor: " + randomNeighbor);
+
+                if (maze[randomNeighbor.x, randomNeighbor.y].m_isPlacedInMaze == false)
                 {
-                    Vector2Int randomNeighbor = neighbors[Random.Range(0, neighbors.Count)];
-                    maze[randomNeighbor.x, randomNeighbor.y].wasVisited = true;
+                    Debug.Log("Random Neightbor was ok to add");
+                    //maze[randomNeighbor.x, randomNeighbor.y].wasVisited = true;
+                    AdjustUnvisitedCellCount(-1);
                     CarvePassage(current, randomNeighbor);
-                    stack.Push(randomNeighbor);
+                    currStack.Push(randomNeighbor);
+                    RunGenerationLoop(randomNeighbor);
+
+                }
+                else if (currStack.Contains(randomNeighbor))
+                {
+                    Debug.Log("Random Neightbor was ok to add");
+                    currStack.Pop();
+                    return;
                 }
                 else
                 {
-                    stack.Pop();
+                    return;
                 }
             }
+            //else
+            //{
+            //    currStack.Pop();
+            //    return;
+            //}
+
+            //Vector2Int current = stack.Peek();
+
+
+            //if (neighbors.Count > 0) {
+            //    Vector2Int randomNeighbor = neighbors[Random.Range(0, neighbors.Count)];
+            //    maze[randomNeighbor.x, randomNeighbor.y].wasVisited = true;
+            //    CarvePassage(current, randomNeighbor);
+            //    stack.Push(randomNeighbor);
+            //}
+            //else {
+            //    stack.Pop();
+            //}
+
+            //Get next randomStartCell
+            //randomStartCell = GetRandomStartCell();
+            //maze[randomStartCell.x, randomStartCell.y].wasVisited = true;
+            //AdjustUnvisitedCellCount(-1);
+        }
+
+        private void Walk()
+        {
+            Vector2Int randomStartCell = GetRandomStartCell();
+
+            if (randomStartCell.x == -1)
+                return;
+
+
+
+        }
+
+        private Vector2Int GetRandomStartCell()
+        {
+            Vector2Int randomCell = new Vector2Int(-1, -1);
+
+            if (unvisitedMazeCells > 0)
+            {
+                randomCell = new Vector2Int(Random.Range(0, width - 1), Random.Range(0, height - 1));
+
+                while (maze[randomCell.x, randomCell.y].m_isPlacedInMaze == true)
+                {
+                    randomCell = new Vector2Int(Random.Range(0, width - 1), Random.Range(0, height - 1));
+                }
+            }
+
+            return randomCell;
         }
 
         private List<Vector2Int> GetUnvisitedNeighbors(Vector2Int cell)
         {
             List<Vector2Int> neighbors = new List<Vector2Int>();
 
-            if (cell.x > 0 && maze[cell.x - 1, cell.y].wasVisited == false)
+            //if (cell.x > 0 && currStack.Contains(new Vector2Int(cell.x - 1, cell.y)) == false)
+            //{
+            //    neighbors.Add(new Vector2Int(cell.x - 1, cell.y));
+            //}
+            //if (cell.x < width - 1 && currStack.Contains(new Vector2Int(cell.x + 1, cell.y)) == false)
+            //{
+            //    neighbors.Add(new Vector2Int(cell.x + 1, cell.y));
+            //}
+            //if (cell.y > 0 && currStack.Contains(new Vector2Int(cell.x, cell.y - 1)) == false)
+            //{
+            //    neighbors.Add(new Vector2Int(cell.x, cell.y - 1));
+            //}
+            //if (cell.y < height - 1 && currStack.Contains(new Vector2Int(cell.x, cell.y + 1)) == false)
+            //{
+            //    neighbors.Add(new Vector2Int(cell.x, cell.y + 1));
+            //}
+
+            int absNegX = Mathf.Abs(cell.x - 1);
+            int absPosX = Mathf.Abs(cell.x + 1);
+
+            int absNegY = Mathf.Abs(cell.y - 1);
+            int absPosY = Mathf.Abs(cell.y + 1);
+
+
+
+            if (absNegX < width - 1)
             {
                 neighbors.Add(new Vector2Int(cell.x - 1, cell.y));
             }
-            if (cell.x < width - 1 && maze[cell.x + 1, cell.y].wasVisited == false)
+            if (absPosX < width - 1)
             {
                 neighbors.Add(new Vector2Int(cell.x + 1, cell.y));
             }
-            if (cell.y > 0 && maze[cell.x, cell.y - 1].wasVisited == false)
+            if (absNegY < height - 1)
             {
                 neighbors.Add(new Vector2Int(cell.x, cell.y - 1));
             }
-            if (cell.y < height - 1 && maze[cell.x, cell.y + 1].wasVisited == false)
+            if (absPosY < height - 1)
             {
                 neighbors.Add(new Vector2Int(cell.x, cell.y + 1));
             }

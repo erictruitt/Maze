@@ -1,4 +1,4 @@
-namespace Maze.Gameplay
+namespace TrixieGames.Maze.Gameplay
 {
     public class PlayerStats
     {

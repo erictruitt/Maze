@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Maze.Controllers
+namespace TrixieGames.Maze.Controllers
 {
     public class PlayerAnimationController : MonoBehaviour
     {

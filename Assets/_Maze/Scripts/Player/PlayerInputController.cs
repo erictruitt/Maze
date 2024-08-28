@@ -1,7 +1,7 @@
-﻿using Maze.Managers;
+﻿using TrixieGames.Maze.Managers;
 using UnityEngine;
 
-namespace Maze.Controllers
+namespace TrixieGames.Maze.Controllers
 {
     [DefaultExecutionOrder(-100)]
     public class PlayerInputController : MonoBehaviour

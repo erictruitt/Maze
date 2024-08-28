@@ -1,11 +1,11 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Maze.Input;
+using TrixieGames.Maze.Input;
 
-using static Maze.Input.PlayerInputActions;
+using static TrixieGames.Maze.Input.PlayerInputActions;
 
-namespace Maze.Managers
+namespace TrixieGames.Maze.Managers
 {
     [CreateAssetMenu(menuName = "InputManager")]
     [DefaultExecutionOrder(-100)]

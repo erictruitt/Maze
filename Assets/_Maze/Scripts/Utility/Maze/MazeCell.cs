@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Maze.Utility.Utilities;
+using static TrixieGames.Maze.Utility.Utilities;
 
-namespace Maze.Utility
+namespace TrixieGames.Maze.Utility
 {
     public class MazeCell : MonoBehaviour
     {
-        public bool wasVisited;
-        public List<MazeCell> neighbors;
+        public bool m_isPlacedInMaze;
+        public List<Vector2Int> neighbors;
+        public Vector2Int m_coordinates;
 
         [SerializeField]
         private GameObject northWall;
@@ -19,21 +20,48 @@ namespace Maze.Utility
         [SerializeField]
         private GameObject westWall;
 
-        public MazeCell()
+        public void SetupMazeCell(Vector2Int _coordinates, int _mazeWidth, int _mazeHeight)
         {
-            neighbors = new List<MazeCell>();
+            m_coordinates = _coordinates;
+            neighbors = new List<Vector2Int>();
+
+            SetupNeighbors(_mazeWidth, _mazeHeight);
         }
 
-        public MazeCell(Vector2 _position)
+        private void SetupNeighbors(int _mazeWidth, int _mazeHeight)
         {
-            neighbors = new List<MazeCell>();
-        }
+            int nX, nY;
 
-        public void AddNeighbor(MazeCell _newNeighbor)
-        {
-            if (neighbors.Contains(_newNeighbor) == false)
+            nX = m_coordinates.x - 1;
+            if (nX >= 0 && nX < _mazeWidth)
             {
-                neighbors.Add(_newNeighbor);
+                neighbors.Add(new Vector2Int(nX, m_coordinates.y));
+            }
+
+            nX = m_coordinates.x + 1;
+            if (nX >= 0 && nX < _mazeWidth)
+            {
+                neighbors.Add(new Vector2Int(nX, m_coordinates.y));
+            }
+
+            nY = m_coordinates.y + 1;
+            if (nY >= 0 && nY < _mazeHeight)
+            {
+                neighbors.Add(new Vector2Int(m_coordinates.x, nY));
+            }
+
+            nY = m_coordinates.y - 1;
+            if (nY >= 0 && nY < _mazeHeight)
+            {
+                neighbors.Add(new Vector2Int(m_coordinates.x, nY));
+            }
+        }
+
+        public void RemoveNeighbor(Vector2Int _newNeighbor)
+        {
+            if (neighbors.Contains(_newNeighbor) == true)
+            {
+                neighbors.Remove(_newNeighbor);
             }
         }
 

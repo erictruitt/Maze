@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static Maze.Utility.Utilities;
+using static TrixieGames.Maze.Utility.Utilities;
 
-namespace Maze.Utility
+namespace TrixieGames.Maze.Utility
 {
     public class Maze
     {
