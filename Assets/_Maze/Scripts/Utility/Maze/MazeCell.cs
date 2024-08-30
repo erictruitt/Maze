@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static TrixieGames.Maze.Utility.Utilities;
@@ -65,21 +64,33 @@ namespace TrixieGames.Maze.Utility
             }
         }
 
+        public void AddNeighbor(Vector2Int _newNeighbor)
+        {
+            if (neighbors.Contains(_newNeighbor) == false)
+            {
+                neighbors.Add(_newNeighbor);
+            }
+        }
+
         public void RemoveWall(WallDirection _direction)
         {
             switch (_direction)
             {
                 case WallDirection.North:
                     Destroy(northWall);
+                    northWall = null;
                     break;
                 case WallDirection.East:
                     Destroy(eastWall);
+                    eastWall = null;
                     break;
                 case WallDirection.South:
                     Destroy(southWall);
+                    southWall = null;
                     break;
                 case WallDirection.West:
                     Destroy(westWall);
+                    westWall = null;
                     break;
                 default:
                     break;

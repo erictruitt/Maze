@@ -250,8 +250,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9577dcdf763f277488a7254c97290b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_mazeWidth: 10
-  m_mazeHeight: 10
+  m_mazeWidth: 25
+  m_mazeHeight: 25
   m_mazeCellPrefab: {fileID: 6743179990284606080, guid: bef99e2451843bc45b49c71d1fcebbb1,
     type: 3}
 --- !u!1001 &41932390
@@ -3122,7 +3122,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!154 &1034051409
 TerrainCollider:
   m_ObjectHideFlags: 0
